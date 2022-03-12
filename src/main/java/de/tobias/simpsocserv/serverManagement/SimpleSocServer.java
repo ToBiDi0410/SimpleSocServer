@@ -1,10 +1,12 @@
 package de.tobias.simpsocserv.serverManagement;
 
 import de.tobias.simpsocserv.Logger;
-import de.tobias.simpsocserv.external.HTTPRequestHandler;
+import de.tobias.simpsocserv.external.*;
 import io.socket.engineio.server.EngineIoServer;
 import io.socket.engineio.server.JettyWebSocketHandler;
+import io.socket.socketio.server.SocketIoNamespace;
 import io.socket.socketio.server.SocketIoServer;
+import io.socket.socketio.server.SocketIoSocket;
 import org.eclipse.jetty.http.pathmap.ServletPathSpec;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
@@ -25,6 +27,7 @@ public class SimpleSocServer {
     private Server jettyServer;
     private EngineIoServer engineIoServer;
     private SocketIoServer socketIoServer;
+    private SocketIoNamespace mainNamespace;
 
     //Binding
     String host = "127.0.0.1";
@@ -32,6 +35,9 @@ public class SimpleSocServer {
 
     //Handlers
     ArrayList<HTTPRequestHandler> httpRequestHandlers = new ArrayList<>();
+    ArrayList<RawSocketEventHandler> rawSocketEventHandlers = new ArrayList<>();
+    ArrayList<SimpleSocketEventHandler> simpleSocketEventHandlers = new ArrayList<>();
+    ArrayList<SimpleSocketRequestHandler> simpleSocketRequestHandlers = new ArrayList<>();
 
     public SimpleSocServer() {
         disableLogging();
@@ -46,6 +52,16 @@ public class SimpleSocServer {
         httpRequestHandlers.add(h);
         httpRequestHandlers.sort((o1, o2) -> o2.getPath().length() - o1.getPath().length());
     }
+
+    public void addRawSocketEventHandler(RawSocketEventHandler h) {
+        rawSocketEventHandlers.add(h);
+    }
+
+    public void addSimpleSocketEventHandler(SimpleSocketEventHandler h) {
+        simpleSocketEventHandlers.add(h);
+    }
+
+    public void addSimpleSocketRequestHandler(SimpleSocketRequestHandler h) { simpleSocketRequestHandlers.add(h); }
 
     public boolean start() {
         try {
@@ -112,11 +128,28 @@ public class SimpleSocServer {
             }), "/socket.io/*");
 
             WebSocketUpgradeFilter webSocketUpgradeFilter = WebSocketUpgradeFilter.configureContext(context);
-            webSocketUpgradeFilter.addMapping(
-                    new ServletPathSpec("/socket.io/*"),
-                    (servletUpgradeRequest, servletUpgradeResponse) -> new JettyWebSocketHandler(engineIoServer)
-            );
+            webSocketUpgradeFilter.addMapping(new ServletPathSpec("/socket.io/*"), (servletUpgradeRequest, servletUpgradeResponse) -> new JettyWebSocketHandler(engineIoServer));
 
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+
+        try {
+            Logger.info("SERVER", "Registering Socket.IO Namespace and Listeners...");
+            mainNamespace = socketIoServer.namespace("/");
+            mainNamespace.on("connect", args -> {
+                SocketIoSocket socket = (SocketIoSocket) args[0];
+
+                for(RawSocketEventHandler handler : rawSocketEventHandlers) {
+                    socket.on(handler.getEventName(), eventArgs -> handler.getCallback().onEvent(socket, handler.getEventName(), eventArgs));
+                }
+
+                Logger.info("SERVER", "Socket connected and setup: " + socket.getId());
+            });
+
+            addRawSocketEventHandler(new InternalSocEventRawHandler(simpleSocketEventHandlers));
+            addRawSocketEventHandler(new InternalRequestEventRawHandler(simpleSocketRequestHandlers));
         } catch (Exception ex) {
             ex.printStackTrace();
             return false;

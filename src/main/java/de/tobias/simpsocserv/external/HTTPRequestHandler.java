@@ -10,19 +10,19 @@ public class HTTPRequestHandler {
     HttpMethod METHOD;
     String PATH;
 
-    InternalHTTPRequestHandler handler;
+    HTTPRequestHandlerCallback handler;
 
     public HTTPRequestHandler(String PATH, HttpMethod METHOD) {
         this.METHOD = METHOD;
         this.PATH = PATH;
     }
 
-    public InternalHTTPRequestHandler getHandler() { return handler; }
-    public void setCallback(InternalHTTPRequestHandler callback) {
+    public HTTPRequestHandlerCallback getHandler() { return handler; }
+    public void setCallback(HTTPRequestHandlerCallback callback) {
         handler = callback;
     }
 
-    public interface InternalHTTPRequestHandler {
+    public interface HTTPRequestHandlerCallback {
         boolean onRequest(HttpServletRequest req, HttpServletResponse res) throws Exception;
     }
 

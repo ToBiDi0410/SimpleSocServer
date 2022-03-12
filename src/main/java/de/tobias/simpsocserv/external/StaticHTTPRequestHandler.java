@@ -11,9 +11,9 @@ public class StaticHTTPRequestHandler extends HTTPRequestHandler {
 
     File BASEDIR;
 
-    public StaticHTTPRequestHandler(String path, File base) {
+    public StaticHTTPRequestHandler(String path, File folder) {
         super(path, HttpMethod.GET);
-        BASEDIR = base;
+        BASEDIR = folder;
         this.setCallback(this::onRequest);
     }
 
