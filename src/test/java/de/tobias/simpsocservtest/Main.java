@@ -5,7 +5,6 @@ import de.tobias.simpsocserv.serverManagement.SimpleSocServer;
 import org.eclipse.jetty.http.HttpMethod;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
 
 public class Main {
 
