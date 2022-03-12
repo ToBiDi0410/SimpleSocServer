@@ -1,4 +1,4 @@
-package de.tobias.simpsocserv.serverManagement;
+package de.tobias.simpsocserv.utils;
 
 import de.tobias.simpsocserv.Logger;
 import org.apache.commons.io.FilenameUtils;

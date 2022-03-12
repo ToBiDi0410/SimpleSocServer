@@ -6,29 +6,37 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.tobias.simpsocserv.Logger;
 import de.tobias.simpsocserv.external.RawSocketEventHandler;
-import de.tobias.simpsocserv.external.SimpleSocketEventHandler;
 import de.tobias.simpsocserv.external.SimpleSocketRequest;
 import de.tobias.simpsocserv.external.SimpleSocketRequestHandler;
+import de.tobias.simpsocserv.utils.AESPair;
 import io.socket.socketio.server.SocketIoSocket;
 
-import java.util.ArrayList;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Base64;
 import java.util.Date;
 
-public class InternalRequestEventRawHandler extends RawSocketEventHandler {
+public class InternalRequestRawHandler extends RawSocketEventHandler {
 
     public static Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
 
-    public InternalRequestEventRawHandler(ArrayList<SimpleSocketRequestHandler> pHandlers) {
+    public InternalRequestRawHandler(SimpleSocServer srv) {
         super("SIMPLESOCSERVER_REQUEST", (socket, eventName, data) -> {
             Logger.info("SOCREQ", "Received Request");
 
             if(data.length >= 2) {
                 //Data[0] = PAYLOAD
                 //Data[1] = Callback
+                //Data[2] = ANY (INDICATES ENCPRYTION)
 
-                /*if(data.length == 3) {
-                    //Data[2] = Encryption Data
-                }*/
+                AESPair clientPair = srv.clientPairs.get(socket.getId());
+                if(data.length == 3) {
+                    try {
+                        byte[] encryptedPayloadBytes = Base64.getDecoder().decode(data[0].toString());
+                        data[0] = new String(clientPair.decrypt(encryptedPayloadBytes));
+                    } catch(Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
 
                 String payloadString = data[0].toString();
                 JsonElement requestDataJson;
@@ -54,24 +62,26 @@ public class InternalRequestEventRawHandler extends RawSocketEventHandler {
 
                 SimpleSocketRequest request;
                 try {
-                    request = new SimpleSocketRequest(socket, (SocketIoSocket.ReceivedByLocalAcknowledgementCallback) data[1], requestDataJsonObject.get("ID").getAsInt(), requestDataJsonObject.get("NAME").getAsString(), requestDataJsonObject.get("SUBFIELDS").getAsString().split(","), requestDataJsonObject.get("PAYLOAD"), new Date(requestDataJsonObject.get("SENT").getAsLong()), requestDataJsonObject.get("METHOD").getAsString());
+                    request = new SimpleSocketRequest(socket, (SocketIoSocket.ReceivedByLocalAcknowledgementCallback) data[data.length - 1], requestDataJsonObject.get("ID").getAsInt(), requestDataJsonObject.get("NAME").getAsString(), requestDataJsonObject.get("SUBFIELDS").getAsString().split(","), requestDataJsonObject.get("PAYLOAD"), new Date(requestDataJsonObject.get("SENT").getAsLong()), requestDataJsonObject.get("METHOD").getAsString());
+                    if(data.length == 3) request.setAESPair(clientPair);
                 } catch (Exception ex) {
                     Logger.warning("SOCREQ", "Request failed: JSON Types not valid (invalid Format)");
                     return false;
                 }
 
                 try {
-                    for(SimpleSocketRequestHandler handler : pHandlers) {
+                    for(SimpleSocketRequestHandler handler : srv.simpleSocketRequestHandlers) {
                         if(handler.getName().equalsIgnoreCase(request.getName()) && (handler.getMethod().equalsIgnoreCase(request.getMethod()) || handler.getMethod().equalsIgnoreCase("*"))) {
                             if(handler.getCallback().onRequest(request)) break;
                         }
                     }
+
                     request.sendResponse(500, "ABORTED_NOT_HANDLED");
                     Logger.info("SOCREQ", "Request handled");
                 } catch (Exception ex) {
                     Logger.info("SOCREQ", "Request failed: Handler failed");
                     ex.printStackTrace();
-                    request.sendResponse(500, "HANDLER_ERROR");
+                    request.sendResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "HANDLER_ERROR");
                 }
             } else {
                 Logger.warning("SOCEVENT", "Request failed: Data Length out of Range");

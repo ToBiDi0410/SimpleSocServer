@@ -17,6 +17,10 @@ public class SimpleSocketRequestHandler {
         return name;
     }
 
+    public void setCallback(SimpleSocketRequestHandlerCallback h) {
+        this.callback = h;
+    }
+
     public String getMethod() {
         return method;
     }
@@ -26,6 +30,6 @@ public class SimpleSocketRequestHandler {
     }
 
     public interface SimpleSocketRequestHandlerCallback {
-        boolean onRequest(SimpleSocketRequest request);
+        boolean onRequest(SimpleSocketRequest request) throws Exception;
     }
 }

@@ -1,6 +1,6 @@
 package de.tobias.simpsocserv.external;
 
-import de.tobias.simpsocserv.serverManagement.RequestResponseUtils;
+import de.tobias.simpsocserv.utils.RequestResponseUtils;
 import org.eclipse.jetty.http.HttpMethod;
 
 import javax.servlet.http.HttpServletRequest;

@@ -2,6 +2,9 @@ package de.tobias.simpsocserv.serverManagement;
 
 import de.tobias.simpsocserv.Logger;
 import de.tobias.simpsocserv.external.*;
+import de.tobias.simpsocserv.utils.AESPair;
+import de.tobias.simpsocserv.utils.RSAPair;
+import de.tobias.simpsocserv.utils.RequestResponseUtils;
 import io.socket.engineio.server.EngineIoServer;
 import io.socket.engineio.server.JettyWebSocketHandler;
 import io.socket.socketio.server.SocketIoNamespace;
@@ -21,6 +24,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class SimpleSocServer {
 
@@ -28,6 +32,8 @@ public class SimpleSocServer {
     private EngineIoServer engineIoServer;
     private SocketIoServer socketIoServer;
     private SocketIoNamespace mainNamespace;
+
+    HashMap<String, AESPair> clientPairs = new HashMap<>();
 
     //Binding
     String host = "127.0.0.1";
@@ -107,6 +113,11 @@ public class SimpleSocServer {
                             return;
                         }
 
+                        if(request.getRequestURI().contains("forge.js")) {
+                            RequestResponseUtils.sendResource(response, "forge.min.js", getClass());
+                            return;
+                        }
+
                         if(request.getRequestURI().contains(".map")) {
                             response.sendError(404);
                             return;
@@ -148,8 +159,9 @@ public class SimpleSocServer {
                 Logger.info("SERVER", "Socket connected and setup: " + socket.getId());
             });
 
-            addRawSocketEventHandler(new InternalSocEventRawHandler(simpleSocketEventHandlers));
-            addRawSocketEventHandler(new InternalRequestEventRawHandler(simpleSocketRequestHandlers));
+            addSimpleSocketRequestHandler(new InternalEncryptionSocketRequestHandler(new RSAPair(), clientPairs));
+            addRawSocketEventHandler(new InternalSocEventRawHandler(this));
+            addRawSocketEventHandler(new InternalRequestRawHandler(this));
         } catch (Exception ex) {
             ex.printStackTrace();
             return false;
