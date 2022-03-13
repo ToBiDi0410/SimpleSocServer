@@ -11,7 +11,7 @@ public class Main {
     static SimpleSocServer sc = new SimpleSocServer();
 
     public static void main(String[] args) {
-        HTTPRequestHandler reqHand = new HTTPRequestHandler("/staticTest/testno", HttpMethod.GET);
+        HTTPRequestHandler reqHand = new HTTPRequestHandler("/staticTest/testno", HttpMethod.GET, null);
         reqHand.setCallback((req, res) -> {
                 res.setStatus(200);
                 res.setContentType("text/javascript");
@@ -39,6 +39,8 @@ public class Main {
             request.sendResponse(200, "YEP THIS IS GREAT");
             return true;
         }));
+
+        sc.addHTTPRequestHandler(new ClassResourceHTTPRequestHandler("/classres/*", Main.class, ""));
 
         sc.start();
     }

@@ -12,7 +12,7 @@ public class StaticHTTPRequestHandler extends HTTPRequestHandler {
     File BASEDIR;
 
     public StaticHTTPRequestHandler(String path, File folder) {
-        super(path, HttpMethod.GET);
+        super(path, HttpMethod.GET, null);
         BASEDIR = folder;
         this.setCallback(this::onRequest);
     }
