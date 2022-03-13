@@ -12,9 +12,10 @@ public class HTTPRequestHandler {
 
     HTTPRequestHandlerCallback handler;
 
-    public HTTPRequestHandler(String PATH, HttpMethod METHOD) {
+    public HTTPRequestHandler(String PATH, HttpMethod METHOD, HTTPRequestHandlerCallback callback) {
         this.METHOD = METHOD;
         this.PATH = PATH;
+        this.handler = callback;
     }
 
     public HTTPRequestHandlerCallback getHandler() { return handler; }
