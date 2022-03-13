@@ -1,5 +1,7 @@
 package de.tobias.simpsocserv.external;
 
+import de.tobias.simpsocserv.serverManagement.DataStorage;
+
 public class SimpleSocketEventHandler {
 
     String eventName;
@@ -19,6 +21,6 @@ public class SimpleSocketEventHandler {
     }
 
     public interface SimpleSocketEventCallback {
-        boolean onEvent(SimpleSocketEvent event);
+        boolean onEvent(SimpleSocketEvent event, DataStorage socketData);
     }
 }

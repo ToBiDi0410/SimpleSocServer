@@ -1,5 +1,7 @@
 package de.tobias.simpsocserv.external;
 
+import de.tobias.simpsocserv.serverManagement.DataStorage;
+
 public class SimpleSocketRequestHandler {
 
     String name;
@@ -30,6 +32,6 @@ public class SimpleSocketRequestHandler {
     }
 
     public interface SimpleSocketRequestHandlerCallback {
-        boolean onRequest(SimpleSocketRequest request) throws Exception;
+        boolean onRequest(SimpleSocketRequest request, DataStorage socketData) throws Exception;
     }
 }

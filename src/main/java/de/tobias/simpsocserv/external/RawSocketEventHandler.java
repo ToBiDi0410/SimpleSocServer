@@ -1,5 +1,6 @@
 package de.tobias.simpsocserv.external;
 
+import de.tobias.simpsocserv.serverManagement.DataStorage;
 import io.socket.socketio.server.SocketIoSocket;
 
 public class RawSocketEventHandler {
@@ -13,7 +14,7 @@ public class RawSocketEventHandler {
     }
 
     public interface SocketEventHandlerCallback {
-        boolean onEvent(SocketIoSocket socket, String eventName, Object... data);
+        boolean onEvent(SocketIoSocket socket, String eventName, DataStorage socketData, Object... data);
     }
 
     public String getEventName() {

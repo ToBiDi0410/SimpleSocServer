@@ -3,6 +3,7 @@ package de.tobias.simpsocserv.external;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import de.tobias.simpsocserv.serverManagement.DataStorage;
 import de.tobias.simpsocserv.utils.AESPair;
 import io.socket.socketio.server.SocketIoSocket;
 
@@ -56,6 +57,10 @@ public class SimpleSocketRequest {
     public Date getRespondedDate() { return respondedDate; }
     public void setAESPair(AESPair pAESPair) {
         encryptPair = pAESPair;
+    }
+
+    public void setDataStorage(DataStorage store) {
+
     }
 
     public void sendResponse(Integer code, Object data) {

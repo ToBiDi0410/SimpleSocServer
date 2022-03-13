@@ -21,19 +21,19 @@ public class Main {
         sc.addHTTPRequestHandler(reqHand);
         sc.addHTTPRequestHandler(new StaticHTTPRequestHandler("/staticTest/*", new File("./testweb/"))); //STATIC TEST HANDLER
 
-        RawSocketEventHandler rawSocHand = new RawSocketEventHandler("TESTEVENT", (socket, eventName, data) -> {
+        RawSocketEventHandler rawSocHand = new RawSocketEventHandler("TESTEVENT", (socket, eventName, socketData, data) -> {
             System.out.println("RAW TEST EVENT");
             return false;
         });
         sc.addRawSocketEventHandler(rawSocHand);
 
-        sc.addSimpleSocketEventHandler(new SimpleSocketEventHandler("DIED", event -> {
+        sc.addSimpleSocketEventHandler(new SimpleSocketEventHandler("DIED", (event, socketData) -> {
             System.out.println("DIED TEST EVENT");
             event.complete("RECIEVED");
             return false;
         }));
 
-        sc.addSimpleSocketRequestHandler(new SimpleSocketRequestHandler("test", "GET", request -> {
+        sc.addSimpleSocketRequestHandler(new SimpleSocketRequestHandler("test", "GET", (request, socketData) -> {
             System.out.println(request.getName());
             System.out.println(request.getData());
             request.sendResponse(200, "YEP THIS IS GREAT");

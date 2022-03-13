@@ -15,7 +15,7 @@ public class InternalEncryptionSocketRequestHandler extends SimpleSocketRequestH
 
     public InternalEncryptionSocketRequestHandler(RSAPair pServerPair, HashMap<String, AESPair> clientPairs) {
         super("SIMPLESOCSERVER_ENCRYPT", "GET", null);
-        this.setCallback(request -> {
+        this.setCallback((request, socketData) -> {
             JsonElement json = request.getData();
 
             if(!json.isJsonObject()) {

@@ -44,6 +44,7 @@ public class SimpleSocServer {
     ArrayList<RawSocketEventHandler> rawSocketEventHandlers = new ArrayList<>();
     ArrayList<SimpleSocketEventHandler> simpleSocketEventHandlers = new ArrayList<>();
     ArrayList<SimpleSocketRequestHandler> simpleSocketRequestHandlers = new ArrayList<>();
+    HashMap<String, DataStorage> socketData = new HashMap<>();
 
     public SimpleSocServer() {
         disableLogging();
@@ -153,8 +154,10 @@ public class SimpleSocServer {
                 SocketIoSocket socket = (SocketIoSocket) args[0];
 
                 for(RawSocketEventHandler handler : rawSocketEventHandlers) {
-                    socket.on(handler.getEventName(), eventArgs -> handler.getCallback().onEvent(socket, handler.getEventName(), eventArgs));
+                    socket.on(handler.getEventName(), eventArgs -> handler.getCallback().onEvent(socket, handler.getEventName(), socketData.get(socket.getId()), eventArgs));
                 }
+
+                socketData.put(socket.getId(), new DataStorage());
 
                 Logger.info("SERVER", "Socket connected and setup: " + socket.getId());
             });

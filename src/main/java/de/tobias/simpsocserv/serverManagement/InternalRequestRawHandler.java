@@ -20,7 +20,7 @@ public class InternalRequestRawHandler extends RawSocketEventHandler {
     public static Gson gson = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
 
     public InternalRequestRawHandler(SimpleSocServer srv) {
-        super("SIMPLESOCSERVER_REQUEST", (socket, eventName, data) -> {
+        super("SIMPLESOCSERVER_REQUEST", (socket, eventName, socketData, data) -> {
             Logger.info("SOCREQ", "Received Request");
 
             if(data.length >= 2) {
@@ -72,7 +72,7 @@ public class InternalRequestRawHandler extends RawSocketEventHandler {
                 try {
                     for(SimpleSocketRequestHandler handler : srv.simpleSocketRequestHandlers) {
                         if(handler.getName().equalsIgnoreCase(request.getName()) && (handler.getMethod().equalsIgnoreCase(request.getMethod()) || handler.getMethod().equalsIgnoreCase("*"))) {
-                            if(handler.getCallback().onRequest(request)) break;
+                            if(handler.getCallback().onRequest(request, srv.socketData.get(socket.getId()))) break;
                         }
                     }
 
