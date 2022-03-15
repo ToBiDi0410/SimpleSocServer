@@ -15,6 +15,7 @@ A simple Netty HTTP and Socket.IO Server that supports Sockets with various func
 - Code Overhault (Attribute & Method Access, etc.)
 
 ## Usage
+Backend:
 ```java
 
 //Create a new SimpleSocServer Object
@@ -63,6 +64,20 @@ sc.addSimpleSocketRequestHandler(yourSimpSocReqHand);
 
 //Start the Socket Server
 sc.start();
+```
+
+Frontend (HTML):
+```html
+<script src="/socket.io/socserv.js"></script> <!-- Add our API Script to Head (will load all required Resources) -->
+
+<!-- Use the Socket API -->
+<script>
+  //Please look this for now: https://github.com/ToBiDi0410/SimpleSocServer/blob/master/src/main/resources/simpleSocServer.js
+  
+  //Basically you can create SocketRequest Objects and SocketEvent Objects
+  //You can send them and wait for compeltion or Response
+  //For exact Method and Class names look at the File above
+</script>
 ```
 
 #### ⚠️ Currently, this Project is in work there is no guarentee it will work.
