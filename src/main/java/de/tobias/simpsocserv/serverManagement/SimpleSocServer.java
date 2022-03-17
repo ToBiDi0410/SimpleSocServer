@@ -46,9 +46,13 @@ public class SimpleSocServer {
     ArrayList<SimpleSocketRequestHandler> simpleSocketRequestHandlers = new ArrayList<>();
     HashMap<String, DataStorage> socketData = new HashMap<>();
 
-    public SimpleSocServer() {
+    public SimpleSocServer(String pHost, Integer pPort) {
+        this.port = pPort;
+        this.host = pHost;
         disableLogging();
     }
+
+    public SimpleSocServer() { disableLogging(); }
 
     private void disableLogging() {
         System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.StdErrLog");
