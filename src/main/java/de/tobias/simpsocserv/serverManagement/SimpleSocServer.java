@@ -187,4 +187,16 @@ public class SimpleSocServer {
 
         return true;
     }
+
+    public boolean stop() {
+        if(jettyServer == null || !jettyServer.isStarted()) return true;
+        try {
+            jettyServer.stop();
+            return true;
+        } catch (Exception ex) {
+            Logger.error("SERVER", "Failed to stop Server: ");
+            ex.printStackTrace();
+            return false;
+        }
+    }
 }
