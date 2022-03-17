@@ -19,8 +19,9 @@ public class ClassResourceHTTPRequestHandler extends HTTPRequestHandler{
     }
 
     private boolean onRequest(HttpServletRequest req, HttpServletResponse res) {
-        String[] pathParts = (req.getRequestURI() + " ").split("/");
-        String filePath = pathParts[pathParts.length - 1];
-        return RequestResponseUtils.sendResource(res, basePath + filePath, baseClass);
+        String responseResource = RequestResponseUtils.getUniqueFilePathFromURI(req.getRequestURI(), this.getPath());
+        if(this.basePath.contains(".")) responseResource = "";
+
+        return RequestResponseUtils.sendResource(res, basePath + responseResource, baseClass);
     }
 }

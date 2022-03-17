@@ -3,7 +3,6 @@ package de.tobias.simpsocserv.external;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import de.tobias.simpsocserv.utils.AESPair;
 import io.socket.socketio.server.SocketIoSocket;
 

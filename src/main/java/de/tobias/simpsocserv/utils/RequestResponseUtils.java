@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class RequestResponseUtils {
 
@@ -68,5 +70,31 @@ public class RequestResponseUtils {
         if(extension.equalsIgnoreCase("wav")) return "audio/wav";
 
         return "application/octet-stream";
+    }
+
+    public static String getUniqueFilePathFromURI(String uri, String pathMatcher) {
+        String returnURI = uri;
+        if(pathMatcher.endsWith("*")) {
+            returnURI = uri.replace(pathMatcher.replace("*", ""), "");
+        }
+
+        if(pathMatcher.split("/")[pathMatcher.split("/").length - 1].contains(".")) {
+            returnURI = pathMatcher;
+        }
+
+        if(pathMatcher.equalsIgnoreCase("/*")) {
+            returnURI = uri;
+        }
+
+        //System.out.println(uri + " + " + pathMatcher + " --> " + returnURI);
+        return returnURI;
+    }
+
+    public static void redirectToError(HttpServletResponse res, Integer code, String errorDetails) {
+        try {
+            res.sendRedirect("/error?code=" + code + "&details=" + URLEncoder.encode(errorDetails, String.valueOf(StandardCharsets.UTF_8)));
+        } catch (Exception ex) {
+            res.setStatus(500);
+        }
     }
 }

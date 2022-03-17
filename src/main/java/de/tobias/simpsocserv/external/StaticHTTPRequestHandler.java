@@ -1,5 +1,6 @@
 package de.tobias.simpsocserv.external;
 
+import de.tobias.simpsocserv.Logger;
 import de.tobias.simpsocserv.utils.RequestResponseUtils;
 import org.eclipse.jetty.http.HttpMethod;
 
@@ -19,10 +20,7 @@ public class StaticHTTPRequestHandler extends HTTPRequestHandler {
 
     private boolean onRequest(HttpServletRequest req, HttpServletResponse res) throws Exception {
         if(BASEDIR.exists()) {
-            String[] pathParts = (req.getRequestURI() + " ").split("/");
-            String filePath = pathParts[pathParts.length - 1];
-            File requestedFile = new File(BASEDIR, filePath);
-
+            File requestedFile = new File(BASEDIR, RequestResponseUtils.getUniqueFilePathFromURI(req.getRequestURI(), PATH));
             if(requestedFile.exists()) {
                 if(requestedFile.isDirectory()) {
                     res.sendRedirect("index.html");
@@ -32,20 +30,13 @@ public class StaticHTTPRequestHandler extends HTTPRequestHandler {
                 if(requestedFile.canRead()) {
                     RequestResponseUtils.sendFile(res, requestedFile);
                 } else {
-                    res.setStatus(404);
-                    res.setContentType("text/plain");
-                    res.getWriter().write("Invalid Server Configuration: No read access");
+                    RequestResponseUtils.redirectToError(res, 500, "Invalid Server Configuration: No read access");
                 }
             } else {
-                res.setStatus(500);
-                res.setContentType("text/plain");
-                res.getWriter().write("File not found");
+                RequestResponseUtils.redirectToError(res, 404, "File does not exist");
             }
         } else {
-            res.setStatus(500);
-            res.setContentType("text/plain");
-            res.getWriter().write("Invalid Server Configuration: Web Directory not found");
-            System.out.println(BASEDIR.getAbsolutePath());
+            RequestResponseUtils.redirectToError(res, 500, "Invalid Server Configuration: Web Directory not found");
         }
         return true;
     }

@@ -165,6 +165,8 @@ public class SimpleSocServer {
             addSimpleSocketRequestHandler(new InternalEncryptionSocketRequestHandler(new RSAPair(), clientPairs));
             addRawSocketEventHandler(new InternalSocEventRawHandler(this));
             addRawSocketEventHandler(new InternalRequestRawHandler(this));
+            addHTTPRequestHandler(new ClassResourceHTTPRequestHandler("/error", SimpleSocServer.class, "error.html"));
+
         } catch (Exception ex) {
             ex.printStackTrace();
             return false;
