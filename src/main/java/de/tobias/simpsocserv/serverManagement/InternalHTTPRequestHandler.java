@@ -2,6 +2,8 @@ package de.tobias.simpsocserv.serverManagement;
 
 import de.tobias.simpsocserv.Logger;
 import de.tobias.simpsocserv.external.HTTPRequestHandler;
+import de.tobias.simpsocserv.utils.InternalPathMatcher;
+import de.tobias.simpsocserv.utils.RequestResponseUtils;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +25,8 @@ public class InternalHTTPRequestHandler extends HttpServlet {
         Logger.info("INTHANDLER", "Request for: " + req.getRequestURI());
         for(HTTPRequestHandler handler : httpRequestHandlers) {
             // TODO: 11.03.2022 Add Method Check
-            if (fitsTemplate(req.getRequestURI(), handler.getPath()) || req.getRequestURI().equalsIgnoreCase(handler.getPath().replace("*", ""))) {
+            if (InternalPathMatcher.isMatching(req.getRequestURI(), handler.getPath())) {
+                req.setAttribute("PATHNOHANDLER", InternalPathMatcher.getURIWithoutRegex(req.getRequestURI(), handler.getPath()));
                 try {
                     boolean handled = handler.getHandler().onRequest(req, res);
                     if(handled) {
@@ -39,9 +42,6 @@ public class InternalHTTPRequestHandler extends HttpServlet {
                 }
             }
         }
-    }
-
-    private boolean fitsTemplate(String path, String template) {
-        return FileSystems.getDefault().getPathMatcher("glob:" + template).matches(Paths.get(path));
+        RequestResponseUtils.redirectToError(res, 404, "NO_HANDLERS_FOUND");
     }
 }

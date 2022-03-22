@@ -20,7 +20,7 @@ public class StaticHTTPRequestHandler extends HTTPRequestHandler {
 
     private boolean onRequest(HttpServletRequest req, HttpServletResponse res) throws Exception {
         if(BASEDIR.exists()) {
-            File requestedFile = new File(BASEDIR, RequestResponseUtils.getUniqueFilePathFromURI(req.getRequestURI(), PATH));
+            File requestedFile = new File(BASEDIR, (String) req.getAttribute("PATHNOHANDLER"));
             if(requestedFile.exists()) {
                 if(requestedFile.isDirectory()) {
                     res.sendRedirect("index.html");
@@ -29,6 +29,7 @@ public class StaticHTTPRequestHandler extends HTTPRequestHandler {
 
                 if(requestedFile.canRead()) {
                     RequestResponseUtils.sendFile(res, requestedFile);
+                    return true;
                 } else {
                     RequestResponseUtils.redirectToError(res, 500, "Invalid Server Configuration: No read access");
                 }

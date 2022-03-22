@@ -2,13 +2,14 @@ package de.tobias.simpsocservtest;
 
 import de.tobias.simpsocserv.external.*;
 import de.tobias.simpsocserv.serverManagement.SimpleSocServer;
+import de.tobias.simpsocserv.utils.InternalPathMatcher;
 import org.eclipse.jetty.http.HttpMethod;
 
 import java.io.File;
 
 public class Main {
 
-    static SimpleSocServer sc = new SimpleSocServer();
+    static SimpleSocServer sc = new SimpleSocServer("127.0.0.1", 8080);
 
     public static void main(String[] args) {
         HTTPRequestHandler reqHand = new HTTPRequestHandler("/staticTest/testno", HttpMethod.GET, null);
@@ -43,5 +44,8 @@ public class Main {
         sc.addHTTPRequestHandler(new ClassResourceHTTPRequestHandler("/classres/*", Main.class, ""));
 
         sc.start();
+
+        System.out.println(InternalPathMatcher.getURIWithoutRegex("/test/directory/spigot.html", "/test/*"));
+        System.out.println(InternalPathMatcher.getURIWithoutRegex("/test/directory/spigot.html", "/test/directory/spigot.html"));
     }
 }
